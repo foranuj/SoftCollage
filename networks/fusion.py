@@ -3,7 +3,7 @@ from . import layers
 
 
 
-class SentenceEmbedding(CudaModule):
+class SentenceEmbedding(GPUModule):
     def __init__(self,plus_name="",feat_dim=2048+512,da=256,r=1,**kargs):
         super(SentenceEmbedding,self).__init__()
         self.r=r
@@ -28,8 +28,8 @@ class SentenceEmbedding(CudaModule):
         @return:
             Size([bsz,feat_dim]), bsz=1 or 2
         """
-        xx=self.sync_cuda_id(x)
-        yy=self.sync_cuda_id(y)
+        xx=self.move_tensor_to_gpu(x)
+        yy=self.move_tensor_to_gpu(y)
         
         
         #original
@@ -47,7 +47,7 @@ class SentenceEmbedding(CudaModule):
         return y
     
     
-class SelfAttention(CudaModule):
+class SelfAttention(GPUModule):
     def __init__(self,plus_name="",feat_dim=2048+512,hidden_dim=1024,da=256,r=1,**kargs):
         super(SelfAttention,self).__init__()
         self.self_attention=layers._SelfAttention(feat_dim=feat_dim,hidden_dim=hidden_dim,out_dim=feat_dim)
@@ -66,8 +66,8 @@ class SelfAttention(CudaModule):
         @return:
             Size([bsz,feat_dim]), bsz=1 or 2
         """
-        xx=self.sync_cuda_id(x)
-        yy=self.sync_cuda_id(y)
+        xx=self.move_tensor_to_gpu(x)
+        yy=self.move_tensor_to_gpu(y)
         #original
         x=torch.cat([xx[0].unsqueeze(0),yy[0].unsqueeze(0)],dim=0)
         y=self.sentence_embedding(self.self_attention(x))
@@ -81,7 +81,7 @@ class SelfAttention(CudaModule):
     
     
     
-class ArithmeticMean(CudaModule):
+class ArithmeticMean(GPUModule):
     def __init__(self,plus_name="",**kargs):
         super(ArithmeticMean,self).__init__()
         if len(plus_name)>0:
@@ -97,8 +97,8 @@ class ArithmeticMean(CudaModule):
         @return:
             Size([bsz,feat_dim]), bsz=1 or 2
         """
-        xx=self.sync_cuda_id(x)
-        yy=self.sync_cuda_id(y)
+        xx=self.move_tensor_to_gpu(x)
+        yy=self.move_tensor_to_gpu(y)
         y=((xx[0]+yy[0])/2).unsqueeze(0)
         
         if self.plus_net!=None:
@@ -111,7 +111,7 @@ class ArithmeticMean(CudaModule):
     
     
     
-class Scheme0(CudaModule):
+class Scheme0(GPUModule):
     def __init__(self,feat_dim=2048+512,hidden_dim=1024,r=1,**kargs):
         super(Scheme0,self).__init__()
         self.r=r
@@ -130,8 +130,8 @@ class Scheme0(CudaModule):
         @return:
             Size([bsz,feat_dim]), bsz=1 or 2
         """
-        xx=self.sync_cuda_id(x)
-        yy=self.sync_cuda_id(y)
+        xx=self.move_tensor_to_gpu(x)
+        yy=self.move_tensor_to_gpu(y)
         
         
         #original
@@ -146,7 +146,7 @@ class Scheme0(CudaModule):
     
     
     
-class Scheme1(CudaModule):
+class Scheme1(GPUModule):
     def __init__(self,feat_dim=2048+512,hidden_dim=1024,**kargs):
         super(Scheme1,self).__init__()
         sentence_embedding=[nn.Softmax(dim=0)]
@@ -162,8 +162,8 @@ class Scheme1(CudaModule):
         @return:
             Size([bsz,feat_dim]), bsz=1 or 2
         """
-        xx=self.sync_cuda_id(x)
-        yy=self.sync_cuda_id(y)
+        xx=self.move_tensor_to_gpu(x)
+        yy=self.move_tensor_to_gpu(y)
         
         
         #original
@@ -176,7 +176,7 @@ class Scheme1(CudaModule):
         return y
     
     
-class Scheme2(CudaModule):
+class Scheme2(GPUModule):
     def __init__(self,feat_dim=2048+512,hidden_dim=1024,**kargs):
         super(Scheme2,self).__init__()
         sentence_embedding=[nn.Softmax(dim=0)]
@@ -191,8 +191,8 @@ class Scheme2(CudaModule):
         @return:
             Size([bsz,feat_dim]), bsz=1 or 2
         """
-        xx=self.sync_cuda_id(x)
-        yy=self.sync_cuda_id(y)
+        xx=self.move_tensor_to_gpu(x)
+        yy=self.move_tensor_to_gpu(y)
         
         
         #original
